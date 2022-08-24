@@ -1,0 +1,14 @@
+{
+  "apps": [
+    {
+      "name": "king-express-dev",
+      "script": "dist/main.js",
+      "autorestart": true,
+      "merge_logs": true,
+      "watch": false,
+      "env": {
+        "PORT": 9000
+      }
+    }
+  ]
+}
