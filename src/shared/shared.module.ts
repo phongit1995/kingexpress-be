@@ -19,5 +19,6 @@ import { RequestService } from './services/request.service';
     },
     RequestService,
   ],
+  exports: [RequestService],
 })
 export class SharedModule {}
