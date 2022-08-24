@@ -1,0 +1,7 @@
+name: 'stag'
+on:
+  push:
+    branches:
+      - '**'
+      - '!master'
+      - '!develop'
