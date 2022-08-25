@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RequestService } from 'src/shared/services/request.service';
 import Cheerio from 'cheerio';
+import { Product, ProductDto } from './dto/product.dto';
 
 @Injectable()
 export class ProductService {
@@ -44,5 +45,53 @@ export class ProductService {
       });
     });
     return listProduct;
+  }
+
+  async getDetailProduct(id: string) {
+    const res: Product = {};
+    const urtProduct = `https://page.auctions.yahoo.co.jp/jp/auction/${id}`;
+    const result = await this.requestService.getMethod<string>(
+      encodeURI(urtProduct),
+    );
+    const $ = Cheerio.load(result);
+
+    res.id = id;
+    res.name = $('#ProductTitle > .ProductTitle__title > h1').text();
+    res.currentPrice = parseFloat($('dd.Price__value').text());
+    res.quantity = parseInt(
+      $(
+        '.ProductDetail > .ProductDetail__body > .l-container > .l-left > ul > li:nth-child(1) > dl > dd',
+      )
+        .text()
+        .slice(1),
+    );
+    res.startingPrice = parseFloat(
+      $(
+        '.ProductDetail > .ProductDetail__body > .l-container > .l-right > ul > li:nth-child(5) > dl > dd',
+      )
+        .text()
+        .slice(1),
+    );
+
+    res.images = [];
+    const imagesElement = $('.ProductImage__thumbnail');
+    console.log(imagesElement);
+    imagesElement.each(function () {
+      const element = Cheerio.load(this);
+      res.images.push(element('a > img').attr('src'));
+    });
+
+    res.startDateAndTime = $(
+      '.ProductDetail > .ProductDetail__body > .l-container > .l-left > ul > li:nth-child(2) > dl > dd',
+    )
+      .text()
+      .slice(1);
+    res.endDateAndTime = $(
+      '.ProductDetail > .ProductDetail__body > .l-container > .l-left > ul > li:nth-child(3) > dl > dd',
+    )
+      .text()
+      .slice(1);
+
+    return res;
   }
 }
