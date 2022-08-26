@@ -5,11 +5,20 @@ export class ProductSearchDto {
   name: string;
 
   @ApiProperty({ description: 'Price Of Product' })
-  price: number;
+  price?: number;
+
+  @ApiProperty({ description: 'Price Of Product' })
+  startPrice?: number;
+
+  @ApiProperty({ description: 'Price Of Product' })
+  buyNowPrice?: number;
 
   @ApiProperty({ description: 'Source Image Of Product' })
   imageUrl: string;
 
   @ApiProperty({ description: 'Source Of Product' })
   productUrl: string;
+
+  @ApiProperty({ description: 'Price Of Product' })
+  endTime?: number;
 }

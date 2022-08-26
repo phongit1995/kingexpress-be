@@ -110,12 +110,19 @@ export class ProductService {
       const item: any = {};
       item.imageUrl = element('.Product__image > a > img').attr('src');
       item.name = element('.Product__detail > h3 > a').text();
-      item.price = parseFloat(
-        element(
-          '.Product__detail > .Product__priceInfo > span > .Product__priceValue.u-textRed',
-        ).text(),
+      item.price = element('.Product__detail > .Product__bonus').data(
+        'auction-price',
       );
       item.productUrl = element('.Product__detail > h3 > a').attr('href');
+      item.endTime = element('.Product__detail > .Product__bonus').data(
+        'auction-endtime',
+      );
+      item.buyNowPrice = element('.Product__detail > .Product__bonus').data(
+        'auction-buynowprice',
+      );
+      item.startPrice = element('.Product__detail > .Product__bonus').data(
+        'auction-startprice',
+      );
       result.push(item);
     });
     return result;
@@ -132,7 +139,7 @@ export class ProductService {
       encodeURI(urlMain),
     );
     const main = Cheerio.load(resultMain);
-    const totalItem = parseFloat(
+    const totalItem = parseInt(
       main(
         '.SearchMode > .Tab > .Tab__items > li:nth-child(2) > a > .Tab__subText',
       ).text(),
