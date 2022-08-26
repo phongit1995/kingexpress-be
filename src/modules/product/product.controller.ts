@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
@@ -8,6 +8,7 @@ import {
 import { ListProductSuggestDto } from './dto/product-suggest.dto';
 import { ProductService } from './product.service';
 import { ProductDto } from './dto/product.dto';
+import { ProductSearchDto } from './dto/product-search.dto';
 
 @Controller('product')
 @ApiTags('product')
@@ -18,6 +19,13 @@ export class ProductController {
   @ApiResponse({ status: 200, type: [ListProductSuggestDto] })
   suggestProduct() {
     return this.productService.listSuggest();
+  }
+
+  @Get('search')
+  @ApiOperation({ summary: 'search product' })
+  @ApiOkResponse({ status: 200, type: [ProductSearchDto] })
+  searchProduct(@Query('q') q: string) {
+    return this.productService.searchProduct(q, 100);
   }
 
   @Get(':id')

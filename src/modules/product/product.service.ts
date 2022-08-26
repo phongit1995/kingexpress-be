@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { RequestService } from 'src/shared/services/request.service';
 import Cheerio from 'cheerio';
-import { Product, ProductDto } from './dto/product.dto';
+import { Product } from './dto/product.dto';
+import { ProductSearchDto } from './dto/product-search.dto';
 
 @Injectable()
 export class ProductService {
@@ -93,5 +94,57 @@ export class ProductService {
       .slice(1);
 
     return res;
+  }
+
+  async getProductFromPageSearch(p: string, b: number, n: number) {
+    const url = `https://auctions.yahoo.co.jp/search/search?p=${p}&va=${p}&fixed=2&exflg=1&b=${b}&n=${n}`;
+    const res = await this.requestService.getMethod<string>(encodeURI(url));
+    const $ = Cheerio.load(res);
+    const listItem = $(
+      '.Result > .Result__body > .Products.Products--grid > .Products__list > ul > li',
+    );
+    const result: any[] = [];
+
+    listItem.each(function () {
+      const element = Cheerio.load(this);
+      const item: any = {};
+      item.imageUrl = element('.Product__image > a > img').attr('src');
+      item.name = element('.Product__detail > h3 > a').text();
+      item.price = parseFloat(
+        element(
+          '.Product__detail > .Product__priceInfo > span > .Product__priceValue.u-textRed',
+        ).text(),
+      );
+      item.productUrl = element('.Product__detail > h3 > a').attr('href');
+      result.push(item);
+    });
+    return result;
+  }
+
+  async searchProduct(keyword: string, n: number) {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=vi&tl=ja&dt=t&q=${keyword}`;
+    const result: any[] = [];
+    const res = await this.requestService.postMethod<string>(encodeURI(url));
+    const keyJapan = JSON.parse(res)[0][0][0];
+
+    const urlMain = `https://auctions.yahoo.co.jp/search/search?p=${keyJapan}`;
+    const resultMain = await this.requestService.getMethod<string>(
+      encodeURI(urlMain),
+    );
+    const main = Cheerio.load(resultMain);
+    const totalItem = parseFloat(
+      main(
+        '.SearchMode > .Tab > .Tab__items > li:nth-child(2) > a > .Tab__subText',
+      ).text(),
+    );
+    const totalPage = totalItem % n === 0 ? totalItem / n : totalItem / n + 1;
+    let b = 1;
+    for (let i = 1; i <= totalPage; i++) {
+      const resultPerPage = await this.getProductFromPageSearch(keyJapan, b, n);
+      b += n;
+      result.push(...resultPerPage);
+    }
+
+    return result;
   }
 }
