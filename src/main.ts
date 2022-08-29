@@ -10,6 +10,12 @@ async function bootstrap() {
   const configService =
     app.get<ConfigService<EnvironmentVariables>>(ConfigService);
   app.use(morgan('dev'));
+  app.enableCors({
+    origin: '*',
+    allowedHeaders:
+      'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe,Access-Control-Allow-Headers,Origin,Authorization',
+    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
+  });
   const PORT = configService.get('PORT') || 3000;
   setUpSwagger(app);
   await app.listen(PORT);
