@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { RequestService } from 'src/shared/services/request.service';
 import Cheerio from 'cheerio';
-import { Product } from './dto/product.dto';
+import { Product, ProductDetail } from './dto/product.dto';
 import { ProductSearchDto } from './dto/product-search.dto';
+import * as moment from 'moment';
+moment.locale('ja');
 
 @Injectable()
 export class ProductService {
@@ -48,52 +50,119 @@ export class ProductService {
     return listProduct;
   }
 
-  async getDetailProduct(id: string) {
-    const res: Product = {};
+  async getDetailProduct(id: string): Promise<ProductDetail> {
     const urtProduct = `https://page.auctions.yahoo.co.jp/jp/auction/${id}`;
     const result = await this.requestService.getMethod<string>(
       encodeURI(urtProduct),
     );
     const $ = Cheerio.load(result);
-
-    res.id = id;
-    res.name = $('#ProductTitle > .ProductTitle__title > h1').text();
-    res.currentPrice = parseFloat($('dd.Price__value').text());
-    res.quantity = parseInt(
+    const name = $('#ProductTitle > .ProductTitle__title > h1').text();
+    const currentPrice = parseFloat($('dd.Price__value').text());
+    const quantity = parseInt(
       $(
         '.ProductDetail > .ProductDetail__body > .l-container > .l-left > ul > li:nth-child(1) > dl > dd',
       )
         .text()
         .slice(1),
     );
-    res.startingPrice = parseFloat(
+    const startingPrice = parseFloat(
       $(
         '.ProductDetail > .ProductDetail__body > .l-container > .l-right > ul > li:nth-child(5) > dl > dd',
       )
         .text()
         .slice(1),
     );
-
-    res.images = [];
+    const images: string[] = [];
     const imagesElement = $('.ProductImage__thumbnail');
-    console.log(imagesElement);
     imagesElement.each(function () {
       const element = Cheerio.load(this);
-      res.images.push(element('a > img').attr('src'));
+      images.push(element('a > img').attr('src'));
     });
 
-    res.startDateAndTime = $(
+    const startDateAndTime = $(
       '.ProductDetail > .ProductDetail__body > .l-container > .l-left > ul > li:nth-child(2) > dl > dd',
     )
       .text()
       .slice(1);
-    res.endDateAndTime = $(
+    const endDateAndTime = $(
       '.ProductDetail > .ProductDetail__body > .l-container > .l-left > ul > li:nth-child(3) > dl > dd',
     )
       .text()
       .slice(1);
-
-    return res;
+    const automationExtension = $(
+      '.ProductDetail > .ProductDetail__body > .l-container > div.l-left > ul > li:nth-child(4) > dl > dd',
+    )
+      .text()
+      .replace('：', '')
+      .trim();
+    const earlyTermination = $(
+      '.ProductDetail > .ProductDetail__body > .l-container > div.l-left > ul > li:nth-child(5) > dl > dd',
+    )
+      .text()
+      .replace('：', '')
+      .trim();
+    const refund = $(
+      '.ProductDetail > .ProductDetail__body > .l-container > div.l-right > ul > li:nth-child(1) > dl > dd',
+    )
+      .text()
+      .replace('：', '')
+      .trim();
+    const bidderAppraisalRestriction = $(
+      '.ProductDetail > .ProductDetail__body > .l-container > div.l-right > ul > li:nth-child(2) > dl > dd',
+    )
+      .text()
+      .replace('：', '')
+      .trim();
+    const bidderVerificationLimit = $(
+      '.ProductDetail > .ProductDetail__body > .l-container > div.l-right > ul > li:nth-child(3) > dl > dd',
+    )
+      .text()
+      .replace('：', '')
+      .trim();
+    const productRelation = [];
+    const productRelationContainer = $('#recommendTop > div > ul > li');
+    productRelationContainer.each(function () {
+      const element = Cheerio.load(this);
+      const image = element('div > div > a > img').attr('src');
+      const name = element('div > div > a > img').attr('alt');
+      const id = element('div > div > div > a').attr('data-aid');
+      const price = element(
+        'div > a > p.ProductItem__price > span.ProductItem__priceValue.ProductItem__priceValue--current',
+      )
+        .text()
+        .replace('円', '')
+        .replace(',', '');
+      productRelation.push({
+        image,
+        name,
+        price: Number(price),
+        id,
+      });
+    });
+    return {
+      detail: {
+        name,
+        currentPrice,
+        quantity,
+        images,
+        startingPrice,
+        startDateAndTime: moment(
+          startDateAndTime,
+          'YYYY.MM.DD (dd) mm:ss',
+        ).unix(),
+        endDateAndTime: moment(endDateAndTime, 'YYYY.MM.DD (dd) mm:ss').unix(),
+        automationExtension: automationExtension == 'あり' ? true : false,
+        earlyTermination: earlyTermination == 'あり' ? true : false,
+        refund: refund == '返品不可' ? false : true,
+        bidderAppraisalRestriction:
+          bidderAppraisalRestriction == 'あり' ? true : false,
+        bidderVerificationLimit:
+          bidderVerificationLimit == 'なし' ? false : true,
+        highestBidder: null,
+        id,
+      },
+      productRelation,
+    };
   }
 
   async getProductFromPageSearch(p: string, b: number, n: number) {

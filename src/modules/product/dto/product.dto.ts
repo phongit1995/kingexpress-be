@@ -53,6 +53,20 @@ export type Product = {
   quantity?: number;
   startingPrice?: number;
   images?: string[];
-  startDateAndTime?: string;
-  endDateAndTime?: string;
+  startDateAndTime?: number;
+  endDateAndTime?: number;
+  automationExtension: boolean;
+  earlyTermination: boolean;
+  refund: string | boolean;
+  bidderAppraisalRestriction: string | boolean;
+  bidderVerificationLimit: string | boolean;
+  highestBidder: string;
 };
+export interface ProductRelation {
+  name: string;
+  id: string;
+}
+export interface ProductDetail {
+  detail: Product;
+  productRelation: any;
+}
