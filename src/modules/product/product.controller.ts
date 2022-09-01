@@ -23,9 +23,12 @@ export class ProductController {
 
   @Get('search')
   @ApiOperation({ summary: 'search product' })
-  @ApiOkResponse({ status: 200, type: [ProductSearchDto] })
-  searchProduct(@Query('q') q: string) {
-    return this.productService.searchProduct(q, 100);
+  searchProduct(
+    @Query('key') key: string,
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    return this.productService.searchProduct(key, page, pageSize);
   }
 
   @Get(':id')
