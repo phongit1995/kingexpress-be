@@ -53,6 +53,8 @@ export type Product = {
   quantity?: number;
   startingPrice?: number;
   images?: string[];
+  nameSeller?: string;
+  urlSeller?: string;
   startDateAndTime?: number;
   endDateAndTime?: number;
   automationExtension: boolean;

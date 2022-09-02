@@ -56,7 +56,7 @@ export class ProductService {
     );
     const $ = Cheerio.load(result);
     const name = $('#ProductTitle > .ProductTitle__title > h1').text();
-    const currentPrice = parseFloat($('dd.Price__value').text());
+    const currentPrice = parseInt($('dd.Price__value').text().replace(',', ''));
     const quantity = parseInt(
       $(
         '.ProductDetail > .ProductDetail__body > .l-container > .l-left > ul > li:nth-child(1) > dl > dd',
@@ -77,6 +77,8 @@ export class ProductService {
       const element = Cheerio.load(this);
       images.push(element('a > img').attr('src'));
     });
+    const nameSeller = $('.Seller__name > a').text();
+    const urlSeller = $('.Seller__name > a').attr('href');
 
     const startDateAndTime = $(
       '.ProductDetail > .ProductDetail__body > .l-container > .l-left > ul > li:nth-child(2) > dl > dd',
@@ -144,6 +146,8 @@ export class ProductService {
         currentPrice,
         quantity,
         images,
+        nameSeller,
+        urlSeller,
         startingPrice,
         startDateAndTime: moment(
           startDateAndTime,

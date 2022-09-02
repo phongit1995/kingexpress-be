@@ -7,7 +7,7 @@ import {
 } from '@nestjs/swagger';
 import { ListProductSuggestDto } from './dto/product-suggest.dto';
 import { ProductService } from './product.service';
-import { ProductDto } from './dto/product.dto';
+import { ProductDetail, ProductDto } from './dto/product.dto';
 import { ProductSearchDto } from './dto/product-search.dto';
 
 @Controller('product')
@@ -33,7 +33,6 @@ export class ProductController {
 
   @Get(':id')
   @ApiOperation({ summary: 'get detail product' })
-  @ApiOkResponse({ status: 200, type: ProductDto })
   detailProduct(@Param('id') id: string) {
     return this.productService.getDetailProduct(id);
   }
