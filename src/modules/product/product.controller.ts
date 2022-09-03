@@ -8,7 +8,7 @@ import {
 import { ListProductSuggestDto } from './dto/product-suggest.dto';
 import { ProductService } from './product.service';
 import { ProductDetail, ProductDto } from './dto/product.dto';
-import { ProductSearchDto } from './dto/product-search.dto';
+import { ProductSearchDto, QuerySearchDto } from './dto/product-search.dto';
 
 @Controller('product')
 @ApiTags('product')
@@ -23,12 +23,16 @@ export class ProductController {
 
   @Get('search')
   @ApiOperation({ summary: 'search product' })
-  searchProduct(
-    @Query('key') key: string,
-    @Query('page') page: number,
-    @Query('pageSize') pageSize: number,
-  ) {
-    return this.productService.searchProduct(key, page, pageSize);
+  searchProduct(@Query() query?: QuerySearchDto) {
+    return this.productService.searchProduct(
+      query.key,
+      query.page,
+      query.pageSize,
+      query.min,
+      query.max,
+      query.priceType,
+      query.status,
+    );
   }
 
   @Get(':id')
