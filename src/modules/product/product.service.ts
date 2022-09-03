@@ -168,7 +168,15 @@ export class ProductService {
     };
   }
 
-  async searchProduct(key: string, page: number, pageSize: number) {
+  async searchProduct(
+    key: string,
+    page: number,
+    pageSize: number,
+    min: number,
+    max: number,
+    priceType: string,
+    status: number,
+  ) {
     const urlTranslate = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=vi&tl=ja&dt=t&q=${key}`;
     const result: any = {};
     result.product = [];
@@ -177,24 +185,40 @@ export class ProductService {
     );
     const keyJapan = JSON.parse(resJapanese)[0][0][0];
 
-    const urlMain = `https://auctions.yahoo.co.jp/search/search?p=${keyJapan}`;
-    const url = `https://auctions.yahoo.co.jp/search/search?p=${keyJapan}&va=${keyJapan}&fixed=2&exflg=1&b=${
-      (page - 1) * pageSize + 1
-    }&n=${pageSize}`;
-    const [resultMain, res] = await Promise.all([
-      this.requestService.getMethod<string>(encodeURI(urlMain)),
-      this.requestService.getMethod<string>(encodeURI(url)),
-    ]);
-    const main = Cheerio.load(resultMain);
+    let url = `https://auctions.yahoo.co.jp/search/search`;
+    if (keyJapan) {
+      url += `?p=${keyJapan}&va=${keyJapan}&fixed=2&exflg=1`;
+    }
+    if (page || page === 0) {
+      url += `&b=${(page - 1) * pageSize + 1}`;
+    }
+    if (pageSize || pageSize === 0) {
+      url += `&n=${pageSize}`;
+    }
+    if (min || min === 0) {
+      url += `&min=${min}`;
+    }
+    if (max || max === 0) {
+      url += `&max=${max}`;
+    }
+    if (priceType) {
+      url += `&price_type=${priceType}`;
+    }
+    if (status || status === 1) {
+      url += `&new=1`;
+    }
+    console.log(key, page, pageSize, min, max, priceType, status);
+    console.log(url);
+
+    const res = await this.requestService.getMethod<string>(encodeURI(url));
+    const $ = Cheerio.load(res);
     result.totalProduct = parseInt(
-      main(
-        '.SearchMode > .Tab > .Tab__items > li:nth-child(2) > a > .Tab__subText',
+      $(
+        '.SearchMode > .Tab > .Tab__items > li:nth-child(2) > .Tab__itemInner > .Tab__subText',
       )
         .text()
         .replace(',', ''),
     );
-
-    const $ = Cheerio.load(res);
     const listItem = $(
       '.Result > .Result__body > .Products.Products--grid > .Products__list > ul > li',
     );
