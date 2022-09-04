@@ -188,7 +188,7 @@ export class ProductService {
     pageSize: number,
     min: number,
     max: number,
-    priceType: string,
+    priceType: number,
     status: number,
   ) {
     const urlTranslate = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=vi&tl=ja&dt=t&q=${key}`;
@@ -215,8 +215,11 @@ export class ProductService {
     if (max || max === 0) {
       url += `&max=${max}`;
     }
-    if (priceType) {
-      url += `&price_type=${priceType}`;
+    if (priceType || priceType === 1) {
+      url += `&price_type=currentprice`;
+    }
+    if (priceType || priceType === 2) {
+      url += `&price_type=bidorbuyprice`;
     }
     if (status || status === 1) {
       url += `&new=1`;

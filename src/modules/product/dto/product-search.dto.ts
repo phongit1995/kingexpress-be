@@ -45,9 +45,12 @@ export class QuerySearchDto {
   @IsOptional()
   max?: number;
 
-  @ApiProperty({ description: 'Price Type', required: false })
+  @ApiProperty({
+    description: 'Price Type, 1: currentprice, 2: bidorbuyprice',
+    required: false,
+  })
   @IsOptional()
-  priceType?: string;
+  priceType?: number;
 
   @ApiProperty({ description: 'Status [1: sản phẩm mới]', required: false })
   @IsOptional()
