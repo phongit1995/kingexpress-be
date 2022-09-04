@@ -66,6 +66,7 @@ export type Product = {
   timeLeft: number;
   url?: string;
   countAuction?: number;
+  description?: string;
 };
 export interface ProductRelation {
   name: string;

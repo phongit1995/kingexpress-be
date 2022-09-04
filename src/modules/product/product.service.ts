@@ -65,6 +65,9 @@ export class ProductService {
         .text()
         .slice(1),
     );
+    const description = $(
+      '#adoc > div.ProductExplanation__body.highlightWordSearch > div.ProductExplanation__commentArea > div > b',
+    ).html();
     const startingPrice = parseFloat(
       $(
         '.ProductDetail > .ProductDetail__body > .l-container > .l-right > ul > li:nth-child(5) > dl > dd',
@@ -154,6 +157,7 @@ export class ProductService {
         quantity,
         images,
         nameSeller,
+        description,
         urlSeller,
         startingPrice,
         startDateAndTime: moment(
