@@ -50,10 +50,11 @@ export class ProductService {
   }
 
   async getDetailProduct(id: string): Promise<ProductDetail> {
-    const urtProduct = `https://page.auctions.yahoo.co.jp/jp/auction/${id}`;
+    const urlProduct = `https://page.auctions.yahoo.co.jp/jp/auction/${id}`;
     const result = await this.requestService.getMethod<string>(
-      encodeURI(urtProduct),
+      encodeURI(urlProduct),
     );
+    const timeLeft = await this.getTimeLefProduct(id);
     const $ = Cheerio.load(result);
     const name = $('#ProductTitle > .ProductTitle__title > h1').text();
     const currentPrice = parseInt($('dd.Price__value').text().replace(',', ''));
@@ -72,14 +73,20 @@ export class ProductService {
         .slice(1),
     );
     const images: string[] = [];
-    const imagesElement = $('.ProductImage__thumbnail');
+    const imagesElement = $('.ProductImage__image');
     imagesElement.each(function () {
       const element = Cheerio.load(this);
-      images.push(element('a > img').attr('src'));
+      images.push(element('div > img').attr('src'));
     });
     const nameSeller = $('.Seller__name > a').text();
     const urlSeller = $('.Seller__name > a').attr('href');
-
+    const countAuction = $(
+      '#l-sub > div.ProductInformation > ul > li.ProductInformation__item.js-stickyNavigation-start > div.Price > div.Price__borderBox > div.Count > ul > li:nth-child(1) > dl > dd',
+    )
+      .children()
+      .remove()
+      .end()
+      .text();
     const startDateAndTime = $(
       '.ProductDetail > .ProductDetail__body > .l-container > .l-left > ul > li:nth-child(2) > dl > dd',
     )
@@ -163,6 +170,9 @@ export class ProductService {
           bidderVerificationLimit == 'なし' ? false : true,
         highestBidder: null,
         id,
+        timeLeft: Number(timeLeft),
+        url: urlProduct,
+        countAuction: Number(countAuction),
       },
       productRelation,
     };
@@ -207,12 +217,9 @@ export class ProductService {
     if (status || status === 1) {
       url += `&new=1`;
     }
-    console.log(key, page, pageSize, min, max, priceType, status);
-    console.log(url);
-
     const res = await this.requestService.getMethod<string>(encodeURI(url));
     const $ = Cheerio.load(res);
-    result.totalProduct = parseInt(
+    const totalProduct = parseInt(
       $(
         '.SearchMode > .Tab > .Tab__items > li:nth-child(2) > .Tab__itemInner > .Tab__subText',
       )
@@ -246,6 +253,15 @@ export class ProductService {
       );
       result.product.push(item);
     });
-    return result;
+    return {
+      ...result,
+      totalProduct: totalProduct || 0,
+    };
+  }
+  async getTimeLefProduct(productId: string): Promise<number> {
+    const urlParse = new URL('https://page.auctions.yahoo.co.jp/now');
+    urlParse.searchParams.set('aID', productId);
+    urlParse.searchParams.set('nowtime', new Date().getTime().toString());
+    return this.requestService.getMethod<number>(urlParse.toString());
   }
 }

@@ -49,7 +49,7 @@ export class QuerySearchDto {
   @IsOptional()
   priceType?: string;
 
-  @ApiProperty({ description: 'Status', required: false })
+  @ApiProperty({ description: 'Status [1: sản phẩm mới]', required: false })
   @IsOptional()
   status?: number;
 }

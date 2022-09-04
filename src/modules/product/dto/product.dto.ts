@@ -63,6 +63,9 @@ export type Product = {
   bidderAppraisalRestriction: string | boolean;
   bidderVerificationLimit: string | boolean;
   highestBidder: string;
+  timeLeft: number;
+  url?: string;
+  countAuction?: number;
 };
 export interface ProductRelation {
   name: string;
