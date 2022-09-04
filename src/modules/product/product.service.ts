@@ -66,7 +66,7 @@ export class ProductService {
         .slice(1),
     );
     const description = $(
-      '#adoc > div.ProductExplanation__body.highlightWordSearch > div.ProductExplanation__commentArea > div > b',
+      '#adoc > div.ProductExplanation__body.highlightWordSearch > div.ProductExplanation__commentArea',
     ).html();
     const startingPrice = parseFloat(
       $(
