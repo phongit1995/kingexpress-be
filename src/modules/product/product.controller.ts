@@ -1,14 +1,8 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import {
-  ApiOkResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ListProductSuggestDto } from './dto/product-suggest.dto';
 import { ProductService } from './product.service';
-import { ProductDetail, ProductDto } from './dto/product.dto';
-import { ProductSearchDto, QuerySearchDto } from './dto/product-search.dto';
+import { QuerySearchDto } from './dto/product-search.dto';
 
 @Controller('product')
 @ApiTags('product')
