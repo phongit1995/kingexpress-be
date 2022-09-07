@@ -19,6 +19,14 @@ export class ShoppingService {
     const listItems = $(
       `#searchResults${page} > div[data-result-type='items'] > ul > li`,
     );
+    const totalProduct = parseInt(
+      $(
+        '#shpWrapper > main > div.Column._3RZ4M6_sP6nw > div.Column__center._3MLJRzRderwL > div.WaEFXzO1gxUR._11KpetFzYHvU > div._2EvXo2XYUZfp > p',
+      )
+        .text()
+        .replace(',', '')
+        .replace(',', ''),
+    );
 
     listItems.each(function () {
       let price: number;
@@ -26,7 +34,7 @@ export class ShoppingService {
       let slugShop: string;
       const element = Cheerio.load(this);
       const checkSale = element('div > div:nth-child(2) > div > p');
-      console.log(checkSale.length);
+
       if (checkSale.length === 2) {
         price = parseFloat(
           element(
@@ -61,6 +69,6 @@ export class ShoppingService {
 
       results.push({ name, price, image, url, slugShop, slugProduct });
     });
-    return results;
+    return { results, totalProduct, pageSize: 30 };
   }
 }
