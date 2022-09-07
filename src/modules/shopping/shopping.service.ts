@@ -8,7 +8,6 @@ export class ShoppingService {
   constructor(private requestService: RequestService) {}
 
   async getProductByCateGory(idCat: string, page: number) {
-    let price: number;
     const results: ProductOfCategoryDto[] = [];
     const urlCat = `https://shopping.yahoo.co.jp/category/${idCat}/list?b=${
       (page - 1) * 30 + 1
@@ -22,6 +21,9 @@ export class ShoppingService {
     );
 
     listItems.each(function () {
+      let price: number;
+      let slugProduct: string;
+      let slugShop: string;
       const element = Cheerio.load(this);
       const checkSale = element('div > div:nth-child(2) > div > p');
       console.log(checkSale.length);
@@ -47,7 +49,17 @@ export class ShoppingService {
       const image = element('div > div:first-child > a > img').attr('src');
       const url = element('div > div:first-child > a').attr('href');
 
-      results.push({ name, price, image, url });
+      if (url.includes('https://store.shopping.yahoo.co.jp/')) {
+        const arr = url.split('/');
+        slugShop = arr[3];
+        slugProduct = arr[4].slice(0, arr[4].lastIndexOf('.html'));
+      }
+      if (url.includes('https://paypaymall.yahoo.co.jp/')) {
+        slugShop = url.split('/')[4];
+        slugProduct = url.split('/')[6];
+      }
+
+      results.push({ name, price, image, url, slugShop, slugProduct });
     });
     return results;
   }
