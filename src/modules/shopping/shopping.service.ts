@@ -79,26 +79,39 @@ export class ShoppingService {
   }
 
   async getListCategoryInMainPage() {
-    const url = `https://ichibajp.com/yahoo-shopping`;
-    const results: any[] = [];
-    const response = await this.requestService.getMethod<string>(
-      encodeURI(url),
-    );
-    const $ = Cheerio.load(response);
-    const elements = $('#page_home_backup > div > div:nth-child(5) > div');
-
-    elements.each(function () {
-      const element = Cheerio.load(this);
-      const title = element('div > div.block_header > h3').text();
-      const id = element(
-        'div > div.block_body > div > div > div.swiper-slide.swiper-slide-active > div > div:nth-child(1) > a',
-      ).attr('href');
-
-      console.log(id, title);
-
-      results.push({ id, title });
-    });
-
-    return results;
+    return [
+      {
+        id: 3070,
+        name: 'Thế giới golf',
+      },
+      {
+        id: 587,
+        name: 'Đồ gia dụng',
+      },
+      {
+        id: 50189,
+        name: 'Dụng cụ Bonsai',
+      },
+      {
+        id: 40151,
+        name: 'Đồ công nghệ',
+      },
+      {
+        id: 5192,
+        name: 'Đồng hồ & Phụ kiện',
+      },
+      {
+        id: 44812,
+        name: 'Zippo',
+      },
+      {
+        id: 44106,
+        name: 'Phụ kiện xe',
+      },
+      {
+        id: 36861,
+        name: 'Thời trang Nam - Nữ',
+      },
+    ];
   }
 }
