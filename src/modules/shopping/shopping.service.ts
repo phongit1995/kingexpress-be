@@ -71,4 +71,34 @@ export class ShoppingService {
     });
     return { results, totalProduct, pageSize: 30 };
   }
+
+  async getDetailProduct(slugShop: string, slugPro: string) {
+    const url = `https://store.shopping.yahoo.co.jp/${slugShop}/${slugPro}.html`;
+    const result = await this.requestService.getMethod<string>(encodeURI(url));
+    const $ = Cheerio.load(result);
+  }
+
+  async getListCategoryInMainPage() {
+    const url = `https://ichibajp.com/yahoo-shopping`;
+    const results: any[] = [];
+    const response = await this.requestService.getMethod<string>(
+      encodeURI(url),
+    );
+    const $ = Cheerio.load(response);
+    const elements = $('#page_home_backup > div > div:nth-child(5) > div');
+
+    elements.each(function () {
+      const element = Cheerio.load(this);
+      const title = element('div > div.block_header > h3').text();
+      const id = element(
+        'div > div.block_body > div > div > div.swiper-slide.swiper-slide-active > div > div:nth-child(1) > a',
+      ).attr('href');
+
+      console.log(id, title);
+
+      results.push({ id, title });
+    });
+
+    return results;
+  }
 }
