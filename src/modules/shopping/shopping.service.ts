@@ -53,9 +53,13 @@ export class ShoppingService {
         );
       }
 
+      let image;
       const name = element('div > div:nth-child(2) > p > a > span').text();
-      const image = element('div > div:first-child > a > img').attr('src');
       const url = element('div > div:first-child > a').attr('href');
+      image = element('div > div:first-child > a > img').attr('src');
+      if (!image) {
+        image = element('div > div:first-child > a > span > img').attr('src');
+      }
 
       if (url.includes('https://store.shopping.yahoo.co.jp/')) {
         const arr = url.split('/');
