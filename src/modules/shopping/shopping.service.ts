@@ -84,6 +84,69 @@ export class ShoppingService {
     const url = `https://store.shopping.yahoo.co.jp/${slugShop}/${slugPro}.html`;
     const result = await this.requestService.getMethod<string>(encodeURI(url));
     const $ = Cheerio.load(result);
+
+    const name = $(
+      '#shpMain > div.gdColumns.gd3ColumnItem > div.gd3ColumnItem2 > div.mdItemName > p.elName',
+    ).text();
+    let price;
+    price = parseFloat(
+      $(
+        '#shpMain > div.gdColumns.gd3ColumnItem > div.gd3ColumnItem2 > div.mdLemItemPrice > div.elMain > div > p.elPriceText > span.elPriceNumber',
+      )
+        .text()
+        .replace(',', ''),
+    );
+    if (!price) {
+      price = parseFloat(
+        $(
+          '#prcdsp > div:nth-child(1) > div.elColumnRight > p > span.elPriceNumber',
+        )
+          .text()
+          .replace(',', ''),
+      );
+    }
+    const information = $(
+      '#shpMain > div.gdColumns.gd3ColumnItem > div.gd3ColumnItem1 > div.mdItemDescription > p',
+    ).html();
+    const images = [];
+    const elementsImage = $('#itmbasic > div.elThumbnail > ul > li > a');
+    elementsImage.each(function () {
+      const element = Cheerio.load(this);
+      images.push(element('img').attr('src'));
+    });
+    const totalRate = parseInt(
+      $('#itmrvw > div > p.elReview > a > span.elReviewCount')
+        .text()
+        .replace('（', '')
+        .replace(',', ''),
+    );
+    let avgRateStar = parseFloat(
+      $('#itmrvw > div > p.elReview > a > span.elReviewValue').text(),
+    );
+    if (!avgRateStar) avgRateStar = 0;
+    const shop: any = {};
+    shop.name = $('#strinfmj > div.elMain > p > a').text();
+    shop.totalRate = parseInt(
+      $('#strinfmj > div.elSub > p:nth-child(1) > a > span.elReviewCount')
+        .text()
+        .replace('（', '')
+        .replace(',', ''),
+    );
+    shop.avgRateStar = parseFloat(
+      $(
+        '#strinfmj > div.elSub > p:nth-child(1) > a > span.elReviewPoint',
+      ).text(),
+    );
+    shop.link = $('#strinfmj > div.elMain > p > a').attr('href');
+
+    return {
+      name,
+      price,
+      information,
+      totalRate,
+      avgRateStar,
+      shop,
+    };
   }
 
   async getListCategoryInMainPage() {
