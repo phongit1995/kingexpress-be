@@ -26,7 +26,7 @@ export class ShoppingController {
   @ApiResponse({ status: 200 })
   getDetailProduct(
     @Param('slugShop') slugShop: string,
-    @Param('idPro') slugPro: string,
+    @Param('slugPro') slugPro: string,
   ) {
     return this.shoppingService.getDetailProduct(slugShop, slugPro);
   }
