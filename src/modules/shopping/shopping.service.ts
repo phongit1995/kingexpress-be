@@ -58,7 +58,11 @@ export class ShoppingService {
       const url = element('div > div:first-child > a').attr('href');
       image = element('div > div:first-child > a > img').attr('src');
       if (!image) {
-        image = element('div > div:first-child > a > span > img').attr('src');
+        const contentNoneScript = element(
+          'div > div:first-child > a > span > noscript',
+        ).text();
+        const content = Cheerio.load(contentNoneScript);
+        image = content('img').attr('src');
       }
 
       if (url.includes('https://store.shopping.yahoo.co.jp/')) {
