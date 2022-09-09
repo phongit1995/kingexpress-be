@@ -18,3 +18,22 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm run build
+  deploy:
+    name: Deploy
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: 198.13.38.9 #hostname of server
+          username: root #username login to server
+          password: c3M]Z{D14Z11!d-C #password login to server
+          port: 22 #port of server - often port is 22
+          script: | # run with multiple script
+            cd kingexpress-be
+            git checkout . 
+            git pull
+            yarn
+            yarn build
+            pm2 start ecosystem.json
