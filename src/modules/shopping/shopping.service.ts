@@ -82,7 +82,14 @@ export class ShoppingService {
 
   async getDetailProduct(slugShop: string, slugPro: string) {
     const infoStore = await this.getDetailProductStore(slugShop, slugPro);
-    return infoStore;
+    if (infoStore.name) {
+      return infoStore;
+    }
+    const infoPaypaymall = await this.getDetailProductPaypaymall(
+      slugShop,
+      slugPro,
+    );
+    return infoPaypaymall;
   }
   async getDetailProductStore(shopId: string, slugPro: string) {
     const url = `https://store.shopping.yahoo.co.jp/${shopId}/${slugPro}.html`;
@@ -142,7 +149,6 @@ export class ShoppingService {
       ).text(),
     );
     shop.link = $('#strinfmj > div.elMain > p > a').attr('href');
-
     return {
       name,
       price,
@@ -155,7 +161,56 @@ export class ShoppingService {
       isStock: true,
     };
   }
-
+  async getDetailProductPaypaymall(shopId: string, productId: string) {
+    const url = `https://paypaymall.yahoo.co.jp/store/${shopId}/item/${productId}/`;
+    const result = await this.requestService.getMethod<string>(encodeURI(url));
+    const $ = Cheerio.load(result);
+    const name = $('#itm_ov > div.ItemName > div > h1').text();
+    const price = $(
+      '#itm_ov > div.ItemPrice > dl.ItemPrice_item.ItemPrice-selling > dd > p.ItemPrice_price',
+    )
+      .text()
+      .replace(/\D+/g, '');
+    const information = $('#itm_inf > div.ItemDescription > p').text();
+    const totalRate = $('#over_all > div > p.ItemOverall_text')
+      .text()
+      .replace(/\D+/g, '');
+    const avgRateStar = $(
+      '#over_all > button:nth-child(2) > p.ItemOverall_text',
+    )
+      .text()
+      .replace('点', '');
+    const shop: any = {};
+    shop.name = $('#str_inf > div.ItemStore > div > a > h3').text();
+    shop.link = $('#str_inf > div.ItemStore > div > a').attr('href');
+    shop.avgRateStar = parseFloat(
+      $(
+        '#str_inf > div.ItemStore > ul.ItemStore_list > li:nth-child(1) > p.ItemStore_itemBody > span > span.Review_average',
+      ).text(),
+    );
+    shop.totalRate = parseInt(
+      $('#str_inf > div.ItemStore > ul.ItemStore_list > li:nth-child(1) > a')
+        .text()
+        .replace(/\D+/g, ''),
+    );
+    const images = [];
+    const imageElement = $('.ItemThumbnail_item > button ');
+    imageElement.each(function () {
+      const element = Cheerio.load(this);
+      images.push(element('amp-img').attr('src'));
+    });
+    return {
+      name,
+      price: parseInt(price),
+      information,
+      totalRate: parseInt(totalRate),
+      avgRateStar: parseFloat(avgRateStar),
+      shop,
+      images,
+      shippingFee: 0,
+      isStock: true,
+    };
+  }
   async getListCategoryInMainPage() {
     return [
       {
