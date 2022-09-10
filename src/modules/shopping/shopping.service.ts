@@ -81,13 +81,17 @@ export class ShoppingService {
   }
 
   async getDetailProduct(slugShop: string, slugPro: string) {
-    const url = `https://store.shopping.yahoo.co.jp/${slugShop}/${slugPro}.html`;
+    const infoStore = await this.getDetailProductStore(slugShop, slugPro);
+    return infoStore;
+  }
+  async getDetailProductStore(shopId: string, slugPro: string) {
+    const url = `https://store.shopping.yahoo.co.jp/${shopId}/${slugPro}.html`;
     const result = await this.requestService.getMethod<string>(encodeURI(url));
     const $ = Cheerio.load(result);
-
     const name = $(
       '#shpMain > div.gdColumns.gd3ColumnItem > div.gd3ColumnItem2 > div.mdItemName > p.elName',
     ).text();
+    console.log('name', name);
     let price;
     price = parseFloat(
       $(
@@ -146,6 +150,9 @@ export class ShoppingService {
       totalRate,
       avgRateStar,
       shop,
+      images,
+      shippingFee: 0,
+      isStock: true,
     };
   }
 
