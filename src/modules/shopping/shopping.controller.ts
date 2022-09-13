@@ -1,6 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ShoppingService } from './shopping.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SearchQueryDto } from './dto/search.dto';
 
 @Controller('shopping')
 @ApiTags('shopping')
@@ -29,5 +30,17 @@ export class ShoppingController {
     @Param('slugPro') slugPro: string,
   ) {
     return this.shoppingService.getDetailProduct(slugShop, slugPro);
+  }
+
+  @Get('/search')
+  @ApiOperation({ summary: 'search product' })
+  @ApiResponse({ status: 200 })
+  search(@Query() query?: SearchQueryDto) {
+    return this.shoppingService.searchProduct(
+      query.keyword,
+      query.page,
+      query.minPrice,
+      query.maxPrice,
+    );
   }
 }
