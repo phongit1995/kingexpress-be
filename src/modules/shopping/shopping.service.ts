@@ -247,4 +247,103 @@ export class ShoppingService {
       },
     ];
   }
+
+  async searchProduct(
+    keyword: string,
+    page: number,
+    minPrice: number,
+    maxPrice: number,
+  ) {
+    const results: any = {};
+
+    let url = `https://shopping.yahoo.co.jp/search?b=${
+      30 * (page - 1) + 1
+    }&view=grid`;
+    if (keyword) {
+      const urlTranslate = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=vi&tl=ja&dt=t&q=${keyword}`;
+      const resJapanese = await this.requestService.postMethod<string>(
+        encodeURI(urlTranslate),
+      );
+      const keyJapan = JSON.parse(resJapanese)[0][0][0].toString();
+      url += `&p=${keyJapan}`;
+    }
+    if (minPrice != null) {
+      url += `&pf=${minPrice}`;
+    }
+    if (maxPrice != null) {
+      url += `&pt=${maxPrice}`;
+    }
+
+    console.log(url);
+
+    const response = await this.requestService.getMethod<string>(
+      encodeURI(url),
+    );
+    const $ = Cheerio.load(response);
+    const listItems = $(
+      `#searchResults${page} > div[data-result-type='items'] > ul > li`,
+    );
+    results.totalProduct = parseInt(
+      $(
+        '#shpWrapper > main > div.Column._3RZ4M6_sP6nw > div.Column__center._3MLJRzRderwL > div.WaEFXzO1gxUR._11KpetFzYHvU > div._2EvXo2XYUZfp > p',
+      )
+        .text()
+        .replace(',', '')
+        .replace(',', ''),
+    );
+    results.pageSize = 30;
+    results.product = [];
+
+    listItems.each(function () {
+      let price: number;
+      let slugProduct: string;
+      let slugShop: string;
+      const element = Cheerio.load(this);
+      const checkSale = element('div > div:nth-child(2) > div > p');
+
+      if (checkSale.length === 2) {
+        price = parseFloat(
+          element(
+            'div > div:nth-child(2) > div > p:nth-child(2) > span:first-child',
+          )
+            .text()
+            .replace(',', ''),
+        );
+      } else if (checkSale.length === 1) {
+        price = parseFloat(
+          element(
+            'div > div:nth-child(2) > div > p:first-child > span:first-child',
+          )
+            .text()
+            .replace(',', ''),
+        );
+      }
+
+      let image;
+      const name = element('div > div:nth-child(2) > p > a > span').text();
+      const url = element('div > div:first-child > a').attr('href');
+      image = element('div > div:first-child > a > img').attr('src');
+      if (!image) {
+        const contentNoneScript = element(
+          'div > div:first-child > a > span > noscript',
+        ).text();
+        const content = Cheerio.load(contentNoneScript);
+        image = content('img').attr('src');
+      }
+
+      if (url.includes('https://store.shopping.yahoo.co.jp/')) {
+        const arr = url.split('/');
+        slugShop = arr[3];
+        slugProduct = arr[4].slice(0, arr[4].lastIndexOf('.html'));
+      }
+      if (url.includes('https://paypaymall.yahoo.co.jp/')) {
+        slugShop = url.split('/')[4];
+        slugProduct = url.split('/')[6];
+      }
+
+      results.product.push({ name, price, image, url, slugShop, slugProduct });
+    });
+
+    return results;
+  }
 }
