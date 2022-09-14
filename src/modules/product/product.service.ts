@@ -243,12 +243,12 @@ export class ProductService {
       item.id = element('.Product__detail > .Product__bonus').data(
         'auction-id',
       );
-      item.imageUrl = element('.Product__image > a > img').attr('src');
+      item.image = element('.Product__image > a > img').attr('src');
       item.name = element('.Product__detail > h3 > a').text();
       item.price = element('.Product__detail > .Product__bonus').data(
         'auction-price',
       );
-      item.productUrl = element('.Product__detail > h3 > a').attr('href');
+      item.url = element('.Product__detail > h3 > a').attr('href');
       item.endTime = element('.Product__detail > .Product__bonus').data(
         'auction-endtime',
       );
