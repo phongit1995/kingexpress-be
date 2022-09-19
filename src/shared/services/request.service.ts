@@ -12,6 +12,6 @@ export class RequestService {
     uri: string,
     options?: RequestPromiseOptions,
   ): Promise<T> {
-    return await requestPromise.post(uri, options).promise();
+    return requestPromise.post(uri, options).promise();
   }
 }
