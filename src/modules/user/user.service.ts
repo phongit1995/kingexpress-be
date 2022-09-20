@@ -22,4 +22,39 @@ export class UserService {
       );
     }
   }
+
+  async getUserInfo(token: string) {
+    const urlUserInfo = `${this.baseUrl}/api/auth`;
+    try {
+      const result = await this.requestService.getMethod(urlUserInfo, {
+        headers: {
+          authorization: token,
+        },
+        json: true,
+      });
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        'Lỗi hệ thống vui lòng liên hệ admin !!!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+  async getStatistics(token: string) {
+    const urlUserInfo = `${this.baseUrl}/api/auth/thongkemuahang`;
+    try {
+      const result = await this.requestService.getMethod(urlUserInfo, {
+        headers: {
+          authorization: token,
+        },
+        json: true,
+      });
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        'Lỗi hệ thống vui lòng liên hệ admin !!!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 }
