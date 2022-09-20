@@ -1,12 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { RequestService } from 'src/shared/services/request.service';
 import Cheerio from 'cheerio';
 import { ProductOfCategoryDto } from './dto/product-of-category.dto';
+import { OrderProductShoppingDto } from './dto/order-product-shopping.dto';
 
 @Injectable()
 export class ShoppingService {
   constructor(private requestService: RequestService) {}
-
+  private readonly baseUrl = 'https://api.kimlongexpress.vn';
   async getProductByCateGory(idCat: string, page: number) {
     const results: ProductOfCategoryDto[] = [];
     const urlCat = `https://shopping.yahoo.co.jp/category/${idCat}/list?b=${
@@ -345,5 +346,27 @@ export class ShoppingService {
     });
 
     return results;
+  }
+
+  async orderProduct(
+    token: string,
+    orderProductShoppingDto: OrderProductShoppingDto,
+  ) {
+    const url = `${this.baseUrl}/api/order/neworder`;
+    try {
+      const result = await this.requestService.postMethod(url, {
+        body: { ...orderProductShoppingDto },
+        headers: {
+          authorization: token,
+        },
+        json: true,
+      });
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        'Lỗi hệ thống vui lòng liên hệ admin !!!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }
