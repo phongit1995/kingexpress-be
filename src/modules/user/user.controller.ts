@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TokenUserGuard } from 'src/common/decorators/token.guard';
 import { TokenUser } from 'src/common/decorators/token.user';
 import { UserLoginDto } from './dto/login.dto';
+import { UserRegisterDto } from './dto/register.dto';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -16,6 +17,12 @@ export class UserController {
       userLoginDto.username,
       userLoginDto.password,
     );
+  }
+
+  @Post('register')
+  @ApiOperation({ summary: 'register user' })
+  async register(@Body() userRegisterDto: UserRegisterDto) {
+    return this.userService.registerUser(userRegisterDto);
   }
 
   @Get('info')

@@ -1,5 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ErrorRequestServiceI } from 'src/shared/services/request.interface';
 import { RequestService } from 'src/shared/services/request.service';
+import { UserRegisterDto } from './dto/register.dto';
 @Injectable()
 export class UserService {
   constructor(private requestService: RequestService) {}
@@ -55,6 +57,20 @@ export class UserService {
         'Lỗi hệ thống vui lòng liên hệ admin !!!',
         HttpStatus.BAD_REQUEST,
       );
+    }
+  }
+  async registerUser(userRegisterDto: UserRegisterDto) {
+    const urlUserRegister = `${this.baseUrl}/api/auth/register`;
+    try {
+      const result = await this.requestService.postMethod(urlUserRegister, {
+        body: {
+          ...userRegisterDto,
+        },
+        json: true,
+      });
+      return result;
+    } catch (error) {
+      throw new HttpException(error.error?.message, error.statusCode || 400);
     }
   }
 }
