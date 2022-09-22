@@ -36,10 +36,7 @@ export class UserService {
       });
       return result;
     } catch (error) {
-      throw new HttpException(
-        'Lỗi hệ thống vui lòng liên hệ admin !!!',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException(error.error?.message, error.statusCode || 400);
     }
   }
   async getStatistics(token: string) {
@@ -53,10 +50,7 @@ export class UserService {
       });
       return result;
     } catch (error) {
-      throw new HttpException(
-        'Lỗi hệ thống vui lòng liên hệ admin !!!',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException(error.error?.message, error.statusCode || 400);
     }
   }
   async registerUser(userRegisterDto: UserRegisterDto) {
