@@ -252,6 +252,7 @@ export class ProductService {
       });
       return result;
     } catch (error) {
+      console.log('error', error);
       throw new HttpException(error.error?.message, error.statusCode || 400);
     }
   }

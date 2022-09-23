@@ -12,7 +12,7 @@ export class TokenUserGuard implements CanActivate {
       throw new HttpException('Lỗi xác minh !!!', HttpStatus.BAD_REQUEST);
     }
     const token = bearToken[0];
-    console.log('tokenGuards', token);
+    // console.log('tokenGuards', token);
     request.token = token;
     return true;
   }

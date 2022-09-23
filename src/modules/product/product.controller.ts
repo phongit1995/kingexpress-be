@@ -39,7 +39,7 @@ export class ProductController {
   }
 
   @Post('last-order')
-  @ApiOperation({ summary: 'get detail product' })
+  @ApiOperation({ summary: 'săn phút chót' })
   @ApiBearerAuth()
   @UseGuards(TokenUserGuard)
   async lastOrder(@Body() lastOrderProductDto: LastOrderProductDto, @TokenUser() token: string) {

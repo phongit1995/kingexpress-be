@@ -79,7 +79,6 @@ export class ShoppingService {
     const result = await this.requestService.getMethod<string>(encodeURI(url));
     const $ = Cheerio.load(result);
     const name = $('#shpMain > div.gdColumns.gd3ColumnItem > div.gd3ColumnItem2 > div.mdItemName > p.elName').text();
-    console.log('name', name);
     let price;
     price = parseFloat(
       $(
@@ -219,8 +218,6 @@ export class ShoppingService {
     if (maxPrice != null) {
       url += `&pt=${maxPrice}`;
     }
-
-    console.log(url);
 
     const response = await this.requestService.getMethod<string>(encodeURI(url));
     const $ = Cheerio.load(response);
