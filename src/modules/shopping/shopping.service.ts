@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { RequestService } from 'src/shared/services/request.service';
 import Cheerio from 'cheerio';
@@ -10,16 +11,10 @@ export class ShoppingService {
   private readonly baseUrl = 'https://api.kimlongexpress.vn';
   async getProductByCateGory(idCat: string, page: number) {
     const results: ProductOfCategoryDto[] = [];
-    const urlCat = `https://shopping.yahoo.co.jp/category/${idCat}/list?b=${
-      (page - 1) * 30 + 1
-    }&view=grid`;
-    const result = await this.requestService.getMethod<string>(
-      encodeURI(urlCat),
-    );
+    const urlCat = `https://shopping.yahoo.co.jp/category/${idCat}/list?b=${(page - 1) * 30 + 1}&view=grid`;
+    const result = await this.requestService.getMethod<string>(encodeURI(urlCat));
     const $ = Cheerio.load(result);
-    const listItems = $(
-      `#searchResults${page} > div[data-result-type='items'] > ul > li`,
-    );
+    const listItems = $(`#searchResults${page} > div[data-result-type='items'] > ul > li`);
     const totalProduct = parseInt(
       $(
         '#shpWrapper > main > div.Column._3RZ4M6_sP6nw > div.Column__center._3MLJRzRderwL > div.WaEFXzO1gxUR._11KpetFzYHvU > div._2EvXo2XYUZfp > p',
@@ -38,19 +33,11 @@ export class ShoppingService {
 
       if (checkSale.length === 2) {
         price = parseFloat(
-          element(
-            'div > div:nth-child(2) > div > p:nth-child(2) > span:first-child',
-          )
-            .text()
-            .replace(',', ''),
+          element('div > div:nth-child(2) > div > p:nth-child(2) > span:first-child').text().replace(',', ''),
         );
       } else if (checkSale.length === 1) {
         price = parseFloat(
-          element(
-            'div > div:nth-child(2) > div > p:first-child > span:first-child',
-          )
-            .text()
-            .replace(',', ''),
+          element('div > div:nth-child(2) > div > p:first-child > span:first-child').text().replace(',', ''),
         );
       }
 
@@ -59,9 +46,7 @@ export class ShoppingService {
       const url = element('div > div:first-child > a').attr('href');
       image = element('div > div:first-child > a > img').attr('src');
       if (!image) {
-        const contentNoneScript = element(
-          'div > div:first-child > a > span > noscript',
-        ).text();
+        const contentNoneScript = element('div > div:first-child > a > span > noscript').text();
         const content = Cheerio.load(contentNoneScript);
         image = content('img').attr('src');
       }
@@ -86,19 +71,14 @@ export class ShoppingService {
     if (infoStore.name) {
       return infoStore;
     }
-    const infoPaypaymall = await this.getDetailProductPaypaymall(
-      slugShop,
-      slugPro,
-    );
+    const infoPaypaymall = await this.getDetailProductPaypaymall(slugShop, slugPro);
     return infoPaypaymall;
   }
   async getDetailProductStore(shopId: string, slugPro: string) {
     const url = `https://store.shopping.yahoo.co.jp/${shopId}/${slugPro}.html`;
     const result = await this.requestService.getMethod<string>(encodeURI(url));
     const $ = Cheerio.load(result);
-    const name = $(
-      '#shpMain > div.gdColumns.gd3ColumnItem > div.gd3ColumnItem2 > div.mdItemName > p.elName',
-    ).text();
+    const name = $('#shpMain > div.gdColumns.gd3ColumnItem > div.gd3ColumnItem2 > div.mdItemName > p.elName').text();
     console.log('name', name);
     let price;
     price = parseFloat(
@@ -110,11 +90,7 @@ export class ShoppingService {
     );
     if (!price) {
       price = parseFloat(
-        $(
-          '#prcdsp > div:nth-child(1) > div.elColumnRight > p > span.elPriceNumber',
-        )
-          .text()
-          .replace(',', ''),
+        $('#prcdsp > div:nth-child(1) > div.elColumnRight > p > span.elPriceNumber').text().replace(',', ''),
       );
     }
     const information = $(
@@ -127,28 +103,16 @@ export class ShoppingService {
       images.push(element('img').attr('src'));
     });
     const totalRate = parseInt(
-      $('#itmrvw > div > p.elReview > a > span.elReviewCount')
-        .text()
-        .replace('（', '')
-        .replace(',', ''),
+      $('#itmrvw > div > p.elReview > a > span.elReviewCount').text().replace('（', '').replace(',', ''),
     );
-    let avgRateStar = parseFloat(
-      $('#itmrvw > div > p.elReview > a > span.elReviewValue').text(),
-    );
+    let avgRateStar = parseFloat($('#itmrvw > div > p.elReview > a > span.elReviewValue').text());
     if (!avgRateStar) avgRateStar = 0;
     const shop: any = {};
     shop.name = $('#strinfmj > div.elMain > p > a').text();
     shop.totalRate = parseInt(
-      $('#strinfmj > div.elSub > p:nth-child(1) > a > span.elReviewCount')
-        .text()
-        .replace('（', '')
-        .replace(',', ''),
+      $('#strinfmj > div.elSub > p:nth-child(1) > a > span.elReviewCount').text().replace('（', '').replace(',', ''),
     );
-    shop.avgRateStar = parseFloat(
-      $(
-        '#strinfmj > div.elSub > p:nth-child(1) > a > span.elReviewPoint',
-      ).text(),
-    );
+    shop.avgRateStar = parseFloat($('#strinfmj > div.elSub > p:nth-child(1) > a > span.elReviewPoint').text());
     shop.link = $('#strinfmj > div.elMain > p > a').attr('href');
     return {
       name,
@@ -167,20 +131,12 @@ export class ShoppingService {
     const result = await this.requestService.getMethod<string>(encodeURI(url));
     const $ = Cheerio.load(result);
     const name = $('#itm_ov > div.ItemName > div > h1').text();
-    const price = $(
-      '#itm_ov > div.ItemPrice > dl.ItemPrice_item.ItemPrice-selling > dd > p.ItemPrice_price',
-    )
+    const price = $('#itm_ov > div.ItemPrice > dl.ItemPrice_item.ItemPrice-selling > dd > p.ItemPrice_price')
       .text()
       .replace(/\D+/g, '');
     const information = $('#itm_inf > div.ItemDescription > p').text();
-    const totalRate = $('#over_all > div > p.ItemOverall_text')
-      .text()
-      .replace(/\D+/g, '');
-    const avgRateStar = $(
-      '#over_all > button:nth-child(2) > p.ItemOverall_text',
-    )
-      .text()
-      .replace('点', '');
+    const totalRate = $('#over_all > div > p.ItemOverall_text').text().replace(/\D+/g, '');
+    const avgRateStar = $('#over_all > button:nth-child(2) > p.ItemOverall_text').text().replace('点', '');
     const shop: any = {};
     shop.name = $('#str_inf > div.ItemStore > div > a > h3').text();
     shop.link = $('#str_inf > div.ItemStore > div > a').attr('href');
@@ -190,9 +146,7 @@ export class ShoppingService {
       ).text(),
     );
     shop.totalRate = parseInt(
-      $('#str_inf > div.ItemStore > ul.ItemStore_list > li:nth-child(1) > a')
-        .text()
-        .replace(/\D+/g, ''),
+      $('#str_inf > div.ItemStore > ul.ItemStore_list > li:nth-child(1) > a').text().replace(/\D+/g, ''),
     );
     const images = [];
     const imageElement = $('.ItemThumbnail_item > button ');
@@ -249,22 +203,13 @@ export class ShoppingService {
     ];
   }
 
-  async searchProduct(
-    keyword: string,
-    page: number,
-    minPrice: number,
-    maxPrice: number,
-  ) {
+  async searchProduct(keyword: string, page: number, minPrice: number, maxPrice: number) {
     const results: any = {};
 
-    let url = `https://shopping.yahoo.co.jp/search?b=${
-      30 * (page - 1) + 1
-    }&view=grid`;
+    let url = `https://shopping.yahoo.co.jp/search?b=${30 * (page - 1) + 1}&view=grid`;
     if (keyword) {
       const urlTranslate = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=vi&tl=ja&dt=t&q=${keyword}`;
-      const resJapanese = await this.requestService.postMethod<string>(
-        encodeURI(urlTranslate),
-      );
+      const resJapanese = await this.requestService.postMethod<string>(encodeURI(urlTranslate));
       const keyJapan = JSON.parse(resJapanese)[0][0][0].toString();
       url += `&p=${keyJapan}`;
     }
@@ -277,13 +222,9 @@ export class ShoppingService {
 
     console.log(url);
 
-    const response = await this.requestService.getMethod<string>(
-      encodeURI(url),
-    );
+    const response = await this.requestService.getMethod<string>(encodeURI(url));
     const $ = Cheerio.load(response);
-    const listItems = $(
-      `#searchResults${page} > div[data-result-type='items'] > ul > li`,
-    );
+    const listItems = $(`#searchResults${page} > div[data-result-type='items'] > ul > li`);
     results.totalProduct = parseInt(
       $(
         '#shpWrapper > main > div.Column._3RZ4M6_sP6nw > div.Column__center._3MLJRzRderwL > div.WaEFXzO1gxUR._11KpetFzYHvU > div._2EvXo2XYUZfp > p',
@@ -304,19 +245,11 @@ export class ShoppingService {
 
       if (checkSale.length === 2) {
         price = parseFloat(
-          element(
-            'div > div:nth-child(2) > div > p:nth-child(2) > span:first-child',
-          )
-            .text()
-            .replace(',', ''),
+          element('div > div:nth-child(2) > div > p:nth-child(2) > span:first-child').text().replace(',', ''),
         );
       } else if (checkSale.length === 1) {
         price = parseFloat(
-          element(
-            'div > div:nth-child(2) > div > p:first-child > span:first-child',
-          )
-            .text()
-            .replace(',', ''),
+          element('div > div:nth-child(2) > div > p:first-child > span:first-child').text().replace(',', ''),
         );
       }
 
@@ -325,9 +258,7 @@ export class ShoppingService {
       const url = element('div > div:first-child > a').attr('href');
       image = element('div > div:first-child > a > img').attr('src');
       if (!image) {
-        const contentNoneScript = element(
-          'div > div:first-child > a > span > noscript',
-        ).text();
+        const contentNoneScript = element('div > div:first-child > a > span > noscript').text();
         const content = Cheerio.load(contentNoneScript);
         image = content('img').attr('src');
       }
@@ -348,10 +279,7 @@ export class ShoppingService {
     return results;
   }
 
-  async orderProduct(
-    token: string,
-    orderProductShoppingDto: OrderProductShoppingDto,
-  ) {
+  async orderProduct(token: string, orderProductShoppingDto: OrderProductShoppingDto) {
     const url = `${this.baseUrl}/api/order/neworder`;
     try {
       const result = await this.requestService.postMethod(url, {
@@ -363,10 +291,7 @@ export class ShoppingService {
       });
       return result;
     } catch (error) {
-      throw new HttpException(
-        'Lỗi hệ thống vui lòng liên hệ admin !!!',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Lỗi hệ thống vui lòng liên hệ admin !!!', HttpStatus.BAD_REQUEST);
     }
   }
 }

@@ -13,10 +13,7 @@ export class UserController {
   @Post('login')
   @ApiOperation({ summary: 'login user' })
   async login(@Body() userLoginDto: UserLoginDto) {
-    return this.userService.loginUser(
-      userLoginDto.username,
-      userLoginDto.password,
-    );
+    return this.userService.loginUser(userLoginDto.username, userLoginDto.password);
   }
 
   @Post('register')

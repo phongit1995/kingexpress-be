@@ -1,19 +1,6 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Query,
-  Post,
-  UseGuards,
-  Body,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, UseGuards, Body } from '@nestjs/common';
 import { ShoppingService } from './shopping.service';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SearchQueryDto } from './dto/search.dto';
 import { TokenUserGuard } from 'src/common/decorators/token.guard';
 import { TokenUser } from 'src/common/decorators/token.user';
@@ -41,10 +28,7 @@ export class ShoppingController {
   @Get('/product/:slugShop/:slugPro')
   @ApiOperation({ summary: 'get detail product' })
   @ApiResponse({ status: 200 })
-  getDetailProduct(
-    @Param('slugShop') slugShop: string,
-    @Param('slugPro') slugPro: string,
-  ) {
+  getDetailProduct(@Param('slugShop') slugShop: string, @Param('slugPro') slugPro: string) {
     return this.shoppingService.getDetailProduct(slugShop, slugPro);
   }
 
@@ -52,12 +36,7 @@ export class ShoppingController {
   @ApiOperation({ summary: 'search product' })
   @ApiResponse({ status: 200 })
   search(@Query() query?: SearchQueryDto) {
-    return this.shoppingService.searchProduct(
-      query.keyword,
-      query.page,
-      query.minPrice,
-      query.maxPrice,
-    );
+    return this.shoppingService.searchProduct(query.keyword, query.page, query.minPrice, query.maxPrice);
   }
 
   @Post('order')
@@ -65,10 +44,7 @@ export class ShoppingController {
   @ApiResponse({ status: 200 })
   @ApiBearerAuth()
   @UseGuards(TokenUserGuard)
-  async orderProduct(
-    @TokenUser() token: string,
-    @Body() orderProductShoppingDto: OrderProductShoppingDto,
-  ) {
+  async orderProduct(@TokenUser() token: string, @Body() orderProductShoppingDto: OrderProductShoppingDto) {
     return this.shoppingService.orderProduct(token, orderProductShoppingDto);
   }
 }

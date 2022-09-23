@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ErrorRequestServiceI } from 'src/shared/services/request.interface';
 import { RequestService } from 'src/shared/services/request.service';
 import { UserRegisterDto } from './dto/register.dto';
 @Injectable()
@@ -18,10 +17,7 @@ export class UserService {
       });
       return result;
     } catch (error) {
-      throw new HttpException(
-        'Tài khoản hoặc mật khẩu chưa đúng !!!',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Tài khoản hoặc mật khẩu chưa đúng !!!', HttpStatus.BAD_REQUEST);
     }
   }
 

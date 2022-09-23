@@ -8,13 +8,7 @@ import { SettingModule } from './modules/setting/setting.module';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
-  imports: [
-    SharedModule,
-    ProductModule,
-    ShoppingModule,
-    SettingModule,
-    UserModule,
-  ],
+  imports: [SharedModule, ProductModule, ShoppingModule, SettingModule, UserModule],
   controllers: [AppController],
   providers: [AppService],
 })

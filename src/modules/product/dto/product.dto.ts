@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  ArrayMinSize,
-  IsArray,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { ArrayMinSize, IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ProductDto {
   @ApiProperty()

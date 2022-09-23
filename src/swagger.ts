@@ -1,9 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import {
-  DocumentBuilder,
-  SwaggerCustomOptions,
-  SwaggerModule,
-} from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerCustomOptions, SwaggerModule } from '@nestjs/swagger';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import * as basicAuth from 'express-basic-auth';

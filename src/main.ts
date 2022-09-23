@@ -15,8 +15,7 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
-  const configService =
-    app.get<ConfigService<EnvironmentVariables>>(ConfigService);
+  const configService = app.get<ConfigService<EnvironmentVariables>>(ConfigService);
   app.use(morgan('dev'));
   app.enableCors({
     origin: '*',

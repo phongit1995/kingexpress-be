@@ -1,8 +1,11 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, Post, Query, Body, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ListProductSuggestDto } from './dto/product-suggest.dto';
 import { ProductService } from './product.service';
 import { QuerySearchDto } from './dto/product-search.dto';
+import { LastOrderProductDto } from './dto/last-order.dto';
+import { TokenUserGuard } from 'src/common/decorators/token.guard';
+import { TokenUser } from 'src/common/decorators/token.user';
 
 @Controller('product')
 @ApiTags('product')
@@ -33,5 +36,13 @@ export class ProductController {
   @ApiOperation({ summary: 'get detail product' })
   detailProduct(@Param('id') id: string) {
     return this.productService.getDetailProduct(id);
+  }
+
+  @Post('last-order')
+  @ApiOperation({ summary: 'get detail product' })
+  @ApiBearerAuth()
+  @UseGuards(TokenUserGuard)
+  async lastOrder(@Body() lastOrderProductDto: LastOrderProductDto, @TokenUser() token: string) {
+    return this.productService.lastOrderProduct(token, lastOrderProductDto);
   }
 }
