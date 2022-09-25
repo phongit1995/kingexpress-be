@@ -8,10 +8,11 @@ export class SettingController {
   async getSetting() {
     return {
       exchangeRate: 220,
-      address: '03-6770-3693 Nhật Bản, 〒136-0075 Tokyo, Koto City, Shinsuna,3 Chome−10−8,  1F Warehouse 3',
+      address: 'B13-T59 đường gom Pháp Vân, Hoàng Liệt, Hoàng Mai, Hà Nộ',
       email: 'kingexpress@gmail.com',
       urlFacebook: 'https://www.facebook.com/n.tuan.kiet.1410',
       hotline: '0354216821',
+      urlManage: 'https://kimlongexpress.vn/auth?token=',
     };
   }
 }
