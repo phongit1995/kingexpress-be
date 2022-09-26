@@ -1,9 +1,13 @@
 import { plainToClass } from 'class-transformer';
-import { IsNumber, validateSync } from 'class-validator';
+import { IsNumber, IsOptional, IsString, validateSync } from 'class-validator';
 
 export class EnvironmentVariables {
   @IsNumber()
   PORT: number;
+
+  @IsOptional()
+  @IsString()
+  MONGO_URL: string;
 }
 
 export function envValidate(config: Record<string, unknown>) {

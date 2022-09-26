@@ -6,9 +6,27 @@ import { ProductModule } from './modules/product/product.module';
 import { ShoppingModule } from './modules/shopping/shopping.module';
 import { SettingModule } from './modules/setting/setting.module';
 import { UserModule } from './modules/user/user.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EnvironmentVariables } from './common/config/config.validate';
 
 @Module({
-  imports: [SharedModule, ProductModule, ShoppingModule, SettingModule, UserModule],
+  imports: [
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (config: ConfigService<EnvironmentVariables>) => {
+        return {
+          uri: config.get('MONGO_URL'),
+        };
+      },
+      inject: [ConfigService],
+    }),
+    SharedModule,
+    ProductModule,
+    ShoppingModule,
+    SettingModule,
+    UserModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

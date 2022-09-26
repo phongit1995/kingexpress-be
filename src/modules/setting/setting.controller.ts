@@ -1,18 +1,21 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Query } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UpdateSettingGlobalDto } from './dto/update-setting.dto';
+import { SettingService } from './setting.service';
 
 @Controller('setting')
 @ApiTags('setting')
 export class SettingController {
+  constructor(private settingService: SettingService) {}
   @Get('global')
   async getSetting() {
-    return {
-      exchangeRate: 220,
-      address: 'B13-T59 đường gom Pháp Vân, Hoàng Liệt, Hoàng Mai, Hà Nộ',
-      email: 'kingexpress@gmail.com',
-      urlFacebook: 'https://www.facebook.com/n.tuan.kiet.1410',
-      hotline: '0354216821',
-      urlManage: 'https://kimlongexpress.vn/auth?token=',
-    };
+    return this.settingService.getGlobalSetting();
+  }
+
+  @Get('update')
+  @ApiOperation({ summary: 'update setting global' })
+  @ApiResponse({ status: 200 })
+  async updateSetting(@Query() updateSettingGlobalDto: UpdateSettingGlobalDto) {
+    return this.settingService.updateSettingGlobal(updateSettingGlobalDto);
   }
 }

@@ -20,6 +20,7 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
     allowedHeaders:
+      // eslint-disable-next-line max-len
       'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe,Access-Control-Allow-Headers,Origin,Authorization',
     methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
   });
