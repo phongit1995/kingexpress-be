@@ -15,6 +15,11 @@ export class OrderProductShoppingDto {
   @IsString()
   properties: string;
 
+  @ApiProperty({ type: String, example: 'màu nâu' })
+  @IsOptional()
+  @IsString()
+  image: string;
+
   @ApiProperty({ type: Number, example: 200 })
   @IsInt()
   @IsOptional()
