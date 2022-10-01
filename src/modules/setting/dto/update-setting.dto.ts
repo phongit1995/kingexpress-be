@@ -25,5 +25,9 @@ export class SettingGlobalDto {
   @ApiProperty()
   @IsString()
   urlManage: string;
+
+  @ApiProperty()
+  @IsInt()
+  shippingRate: number;
 }
 export class UpdateSettingGlobalDto extends PartialType(SettingGlobalDto) {}

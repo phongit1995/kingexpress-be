@@ -20,5 +20,8 @@ export class SettingModel {
 
   @Prop({ type: String })
   urlManage: string;
+
+  @Prop({ type: Number })
+  shippingRate: number;
 }
 export const SettingSchema = SchemaFactory.createForClass(SettingModel);
