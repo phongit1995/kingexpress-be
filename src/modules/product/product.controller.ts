@@ -15,7 +15,8 @@ export class ProductController {
   @ApiOperation({ summary: 'get list suggest home page' })
   @ApiResponse({ status: 200, type: [ListProductSuggestDto] })
   suggestProduct() {
-    return this.productService.listSuggest();
+    const categorySuggest = '23140';
+    return this.productService.listProductCategory(categorySuggest);
   }
 
   @Get('search')
@@ -30,6 +31,31 @@ export class ProductController {
       query.priceType,
       query.status,
     );
+  }
+
+  @Get('category-home')
+  @ApiOperation({ summary: 'list category home product' })
+  async listCategoryHome() {
+    return [
+      {
+        id: '26320',
+        name: 'Phu Kien Xe',
+      },
+      {
+        id: '2084008366',
+        name: 'Noi Com Dien ',
+      },
+      {
+        id: '2084245309',
+        name: 'Robot hut bui',
+      },
+    ];
+  }
+
+  @Get('category/:id')
+  @ApiOperation({ summary: 'get  list product category' })
+  async listProductCategory(@Param('id') id: string) {
+    return this.productService.listProductCategory(id);
   }
 
   @Get(':id')

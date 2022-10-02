@@ -14,8 +14,9 @@ export class ProductService {
   private urlSuggest =
     // eslint-disable-next-line max-len
     'https://auctions.yahoo.co.jp/category/list/23140/?p=アクセサリー、時計&auccat=23140&exflg=1&b=1&n=20&s1=featured&o1=d&nockie=1';
-  async listSuggest() {
-    const result = await this.requestService.getMethod<string>(encodeURI(this.urlSuggest));
+  async listProductCategory(categoryId: string) {
+    const urlCategory = `https://auctions.yahoo.co.jp/category/list/${categoryId}/?p=アクセサリー、時計&auccat=23140&exflg=1&b=1&n=20&s1=featured&o1=d&nockie=1`;
+    const result = await this.requestService.getMethod<string>(encodeURI(urlCategory));
     const $ = Cheerio.load(result);
     const listProductElement = $(
       // eslint-disable-next-line max-len
