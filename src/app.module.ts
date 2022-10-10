@@ -9,6 +9,7 @@ import { UserModule } from './modules/user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from './common/config/config.validate';
+import { RakutenModule } from './modules/rakuten/rakuten.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { EnvironmentVariables } from './common/config/config.validate';
     ShoppingModule,
     SettingModule,
     UserModule,
+    RakutenModule,
   ],
   controllers: [AppController],
   providers: [AppService],
