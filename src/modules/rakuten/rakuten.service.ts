@@ -47,4 +47,25 @@ export class RakutenService {
       pageSize: 50,
     };
   }
+
+  async getListCategoryInMainPage() {
+    return [
+      {
+        id: 215783,
+        name: 'Đồ dùng gia đình',
+      },
+      {
+        id: 216131,
+        name: 'Túi xách & phụ kiện',
+      },
+      {
+        id: 558885,
+        name: 'Giày dép',
+      },
+      {
+        id: 101070,
+        name: 'Golf - Thể thao - Dã ngoại',
+      },
+    ];
+  }
 }
