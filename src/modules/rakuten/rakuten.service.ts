@@ -4,6 +4,7 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import Cheerio from 'cheerio';
 import * as Url from 'url';
+import { SearchQueryDto } from './dto/search.dto';
 @Injectable()
 export class RakutenService {
   constructor(private readonly httpService: HttpService) {}
@@ -90,5 +91,43 @@ export class RakutenService {
       },
       url,
     };
+  }
+
+  async searchProduct(search: SearchQueryDto) {
+    const pageSize = 30;
+    let urlSearch = `https://janbox.com/vi/rakuten/search?fdquery=${search.keyword}&pageSize=${pageSize}&page=${search.page}`;
+    if (search.minPrice) {
+      urlSearch += `&fdcurrentMinPrice=${search.minPrice}`;
+    }
+    if (search.maxPrice) {
+      urlSearch += `&fdcurrentMaxPrice=${search.maxPrice}`;
+    }
+    const { data } = await firstValueFrom<any>(this.httpService.get(urlSearch));
+    const $ = Cheerio.load(data);
+    const products: Array<any> = [];
+    const urlLast = $('#page_rakuten > div.container > div > div > nav > ul > li.page-item.page-item__last > a').attr(
+      'href',
+    );
+    const totalPage = Url.parse(urlLast, true).query.page as string;
+    $('#page_rakuten > div.container > div > div > div.row > div').each(function () {
+      const element = Cheerio.load(this);
+      const image = element('div > div.product_item__price > a').data('image');
+      const name = element('div > div.product_item__price > a').data('title');
+      const price = element('div > div.product_item__price > a').data('price');
+      const productId = element('div > div.product_item__price > a').data('id');
+      products.push({
+        image,
+        name,
+        price,
+        productId,
+      });
+    });
+    return {
+      results: products,
+      page: search.page,
+      totalPage: parseInt(totalPage),
+      pageSize,
+    };
+    return urlSearch;
   }
 }

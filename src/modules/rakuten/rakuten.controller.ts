@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SearchQueryDto } from './dto/search.dto';
 import { RakutenService } from './rakuten.service';
 
 @Controller('rakuten')
@@ -24,5 +25,12 @@ export class RakutenController {
   @ApiOperation({ summary: 'get product detail' })
   async getProductDetail(@Param('productId') productId: string) {
     return this.rakutenService.getProductDetail(productId);
+  }
+
+  @Get('/search')
+  @ApiOperation({ summary: 'search product rakuten' })
+  @ApiResponse({ status: 200 })
+  search(@Query() query?: SearchQueryDto) {
+    return this.rakutenService.searchProduct(query);
   }
 }
