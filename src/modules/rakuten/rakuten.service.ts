@@ -1,13 +1,16 @@
 /* eslint-disable max-len */
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import Cheerio from 'cheerio';
 import * as Url from 'url';
 import { SearchQueryDto } from './dto/search.dto';
+import { OrderProductRakutenDto } from './dto/order-product-rakuten.dto';
+import { RequestService } from 'src/shared/services/request.service';
 @Injectable()
 export class RakutenService {
-  constructor(private readonly httpService: HttpService) {}
+  private readonly baseUrl = 'https://api.kimlongexpress.vn';
+  constructor(private readonly httpService: HttpService, private requestService: RequestService) {}
   async getListProductByCategory(categoryId: string, page = 1) {
     const pageSize = 30;
     const urlGetCategory = `https://janbox.com/vi/rakuten/r-${categoryId}?pageSize=${pageSize}&page=${page}`;
@@ -128,6 +131,21 @@ export class RakutenService {
       totalPage: parseInt(totalPage),
       pageSize,
     };
-    return urlSearch;
+  }
+
+  async orderProduct(token: string, order: OrderProductRakutenDto) {
+    const url = `${this.baseUrl}/api/order/neworder`;
+    try {
+      const result = await this.requestService.postMethod(url, {
+        body: { ...order },
+        headers: {
+          authorization: token,
+        },
+        json: true,
+      });
+      return result;
+    } catch (error) {
+      throw new HttpException('Lỗi hệ thống vui lòng liên hệ admin !!!', HttpStatus.BAD_REQUEST);
+    }
   }
 }

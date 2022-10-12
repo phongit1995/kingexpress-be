@@ -1,5 +1,8 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { TokenUserGuard } from 'src/common/decorators/token.guard';
+import { TokenUser } from 'src/common/decorators/token.user';
+import { OrderProductRakutenDto } from './dto/order-product-rakuten.dto';
 import { SearchQueryDto } from './dto/search.dto';
 import { RakutenService } from './rakuten.service';
 
@@ -32,5 +35,14 @@ export class RakutenController {
   @ApiResponse({ status: 200 })
   search(@Query() query?: SearchQueryDto) {
     return this.rakutenService.searchProduct(query);
+  }
+
+  @Post('order')
+  @ApiOperation({ summary: 'order product rakuten' })
+  @ApiResponse({ status: 200 })
+  @ApiBearerAuth()
+  @UseGuards(TokenUserGuard)
+  async orderProduct(@TokenUser() token: string, @Body() orderProductRakutenDto: OrderProductRakutenDto) {
+    return this.rakutenService.orderProduct(token, orderProductRakutenDto);
   }
 }
