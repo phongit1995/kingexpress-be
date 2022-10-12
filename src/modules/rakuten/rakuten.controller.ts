@@ -19,4 +19,10 @@ export class RakutenController {
   async getListByCategory(@Param('id') id: string, @Query('page') page: number) {
     return this.rakutenService.getListProductByCategory(id, page);
   }
+
+  @Get('product/:productId')
+  @ApiOperation({ summary: 'get product detail' })
+  async getProductDetail(@Param('productId') productId: string) {
+    return this.rakutenService.getProductDetail(productId);
+  }
 }

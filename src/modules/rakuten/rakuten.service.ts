@@ -41,21 +41,54 @@ export class RakutenService {
   async getListCategoryInMainPage() {
     return [
       {
-        id: 215783,
-        name: 'Đồ dùng gia đình',
-      },
-      {
-        id: 216131,
-        name: 'Túi xách & phụ kiện',
-      },
-      {
         id: 558885,
-        name: 'Giày dép',
+        name: 'Giày Dép',
       },
       {
-        id: 101070,
-        name: 'Golf - Thể thao - Dã ngoại',
+        id: 204233,
+        name: 'Trang điểm',
+      },
+      {
+        id: 563843,
+        name: 'Ti Vi',
+      },
+      {
+        id: 200170,
+        name: 'Tập thể hình',
       },
     ];
+  }
+
+  async getProductDetail(productId: string) {
+    const urlDetail = `https://janbox.com/vi/rakuten/item/${productId}`;
+    const { data } = await firstValueFrom<any>(this.httpService.get(urlDetail));
+    const $ = Cheerio.load(data);
+    const name = $('.product_detail__name').text().trim();
+    console.log('name', name);
+    const images: string[] = [];
+    $('.swiper-wrapper > .swiper-slide.gallery_item_thumb >img ').each(function (index, element) {
+      images.push($(element).attr('src'));
+    });
+    const price = $('div.product_detail__box_body > div > span').data('price-jp');
+    const information = $('.product_detail__panel_body.product_detail__panel_info').text().trim();
+    const shopName = $('.btn_product_heart').data('seller');
+    const url = $('.ezb_link').attr('href');
+    return {
+      name,
+      price: parseInt(price),
+      images,
+      shippingFee: 0,
+      isStock: true,
+      information,
+      totalRate: 0,
+      avgRateStar: 0,
+      shop: {
+        name: shopName,
+        avgRateStar: 0,
+        totalRate: 0,
+        link: '',
+      },
+      url,
+    };
   }
 }
