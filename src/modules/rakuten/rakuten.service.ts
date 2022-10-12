@@ -3,48 +3,38 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import Cheerio from 'cheerio';
+import * as Url from 'url';
 @Injectable()
 export class RakutenService {
   constructor(private readonly httpService: HttpService) {}
   async getListProductByCategory(categoryId: string, page = 1) {
-    const urlGetCategory = `https://search.rakuten.co.jp/search/mall/-/${categoryId}/?p=${page}`;
+    const pageSize = 30;
+    const urlGetCategory = `https://janbox.com/vi/rakuten/r-${categoryId}?pageSize=${pageSize}&page=${page}`;
     const { data } = await firstValueFrom<any>(this.httpService.get(urlGetCategory));
     const $ = Cheerio.load(data);
-    const totalItemElement = $(
-      '#root > div.dui-container.nav > div.dui-container.infobar > div > div.item.breadcrumb-model.breadcrumb.-fluid > div > span.count._medium',
-    )
-      .text()
-      .replace(',', '')
-      .split('（');
-    const totalItem = totalItemElement[1].replace('件）', '');
-    const listProductsElement = $(
-      '#root > div.dui-container.main > div.dui-container.content > div.dui-container.searchresults > div > div.searchresultitem',
+    const products: Array<any> = [];
+    const urlLast = $('#page_rakuten > div.container > div > div > nav > ul > li.page-item.page-item__last > a').attr(
+      'href',
     );
-    const listProducts: Array<any> = [];
-    listProductsElement.each(function () {
+    const totalPage = Url.parse(urlLast, true).query.page as string;
+    $('#page_rakuten > div.container > div > div > div.row > div').each(function () {
       const element = Cheerio.load(this);
-      const image = element('div.image > a > img').attr('src');
-      const url = element('div.image > a ').attr('href');
-      const price = parseInt(
-        element('div.content.description.price > span.important').text().replace('円', '').replace(',', ''),
-      );
-      const name = element('div.content.title > h2 > a').attr('title');
-      const urlArray = url.replace('https://', '').split('/');
-      if (urlArray[0] == 'item.rakuten.co.jp') {
-        listProducts.push({
-          image,
-          price,
-          url,
-          shipId: urlArray[1],
-          productId: urlArray[2],
-          name,
-        });
-      }
+      const image = element('div > div.product_item__price > a').data('image');
+      const name = element('div > div.product_item__price > a').data('title');
+      const price = element('div > div.product_item__price > a').data('price');
+      const productId = element('div > div.product_item__price > a').data('id');
+      products.push({
+        image,
+        name,
+        price,
+        productId,
+      });
     });
     return {
-      results: listProducts,
-      totalProduct: parseInt(totalItem),
-      pageSize: 50,
+      results: products,
+      page,
+      totalPage: parseInt(totalPage),
+      pageSize,
     };
   }
 
