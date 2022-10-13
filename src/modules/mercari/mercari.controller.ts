@@ -18,4 +18,10 @@ export class MercariController {
   async searchProductByCategoryId(@Query('page') page: string, @Param('category_id') category_id: string) {
     return await this.service.searchProductByCategoryId(category_id, parseInt(page));
   }
+
+  @Get('/product/:pid')
+  @ApiOperation({ summary: 'Detail Product' })
+  async detailProduct(@Param('pid') pid: string) {
+    return await this.service.getDetailProduct(pid);
+  }
 }
