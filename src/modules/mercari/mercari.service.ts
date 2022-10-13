@@ -1,12 +1,15 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable max-len */
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { RequestService } from 'src/shared/services/request.service';
 import Cheerio from 'cheerio';
 import { ProductOfCategoryDto } from './dto/product-of-category.dto';
-
+import * as Url from 'url';
+import { SearchQueryDto } from './dto/search.dto';
+import { OrderProductMercariDto } from './dto/order-product-mercari.dto';
 @Injectable()
 export class MercariService {
   constructor(private readonly requestService: RequestService) {}
-
+  private readonly baseUrl = 'https://api.kimlongexpress.vn';
   getAllCategoryMain() {
     return [
       {
@@ -77,12 +80,15 @@ export class MercariService {
   }
 
   async searchProductByCategoryId(category_id: string, page = 1) {
+    const pageSize = 30;
     const listProducts: ProductOfCategoryDto[] = [];
-    const url = `https://janbox.com/vi/mercari/${category_id}?page=${page}`;
+    const url = `https://janbox.com/vi/mercari/m-${category_id}?page=${page}&pageSize=${pageSize}`;
     const response = await this.requestService.getMethod<string>(encodeURI(url));
     const $ = Cheerio.load(response);
     const listItem = $('#page_mercari > div.container > div > div > div > div');
-
+    const urlLast = $('.page-item.page-item__last > a').attr('href');
+    console.log('urlLast', urlLast);
+    const totalPage = Url.parse(urlLast, true).query.page as string;
     listItem.each(function () {
       const element = Cheerio.load(this);
       const url = element('div > a').attr('href');
@@ -93,10 +99,10 @@ export class MercariService {
       );
       const id = url.replace('https://janbox.com/vi/mercari/item/', '');
 
-      listProducts.push({ id, name, price, image, url });
+      listProducts.push({ name, price, image, url, productId: id });
     });
 
-    return { listProducts, total: 999 };
+    return { results: listProducts, totalPage: parseInt(totalPage), pageSize, page };
   }
 
   async getDetailProduct(pid: string) {
@@ -112,9 +118,11 @@ export class MercariService {
         .text()
         .replace(',', ''),
     );
-    const description = $(
+    const information = $(
       '#page_mercari > div.page_body > div > div.block_container.product_detail__content > div.block_body',
-    ).text();
+    )
+      .text()
+      .trim();
     const images = [];
     const listItemImages = $('#swiper-wrapper-8a6db1b62a13640e > div');
     listItemImages.each(function () {
@@ -176,10 +184,57 @@ export class MercariService {
     return {
       name,
       price,
-      description,
+      information,
       detail,
-      url_mercari,
-      seller,
+      url: url_mercari,
+      shop: seller,
     };
+  }
+
+  async searchProduct(search: SearchQueryDto) {
+    let urlSearch = `https://janbox.com/vi/mercari/search?keyword=${search.keyword}&page=${search.page}`;
+    if (search.minPrice) {
+      urlSearch += `&priceMin=${search.minPrice}`;
+    }
+    if (search.maxPrice) {
+      urlSearch += `&priceMax=${search.maxPrice}`;
+    }
+    console.log('urlSearch', urlSearch);
+    const listProducts = [];
+    const response = await this.requestService.getMethod<string>(encodeURI(urlSearch));
+    const $ = Cheerio.load(response);
+    const listItem = $('.page_content > div.row > div.col-md-five.mb30');
+    const urlLast = $('.page-item.page-item__last > a').attr('href');
+    console.log('urlLast', urlLast);
+    const totalPage = Url.parse(urlLast, true).query.page as string;
+    listItem.each(function () {
+      const element = Cheerio.load(this);
+      const url = element('div > a').attr('href');
+      const name = element('div > a > img').attr('alt');
+      const image = element('div > a > img').attr('src');
+      const price = parseInt(
+        element('div > div > div > div > div.price_converted.product_price_exchange').attr('data-price-jp'),
+      );
+      const productId = element('div > div.product_item__price > a').data('id');
+      listProducts.push({ name, price, image, url, productId });
+    });
+
+    return { results: listProducts, totalPage: parseInt(totalPage), pageSize: listProducts.length, page: search.page };
+  }
+
+  async orderProduct(token: string, order: OrderProductMercariDto) {
+    const url = `${this.baseUrl}/api/order/neworder`;
+    try {
+      const result = await this.requestService.postMethod(url, {
+        body: { ...order },
+        headers: {
+          authorization: token,
+        },
+        json: true,
+      });
+      return result;
+    } catch (error) {
+      throw new HttpException('Lỗi hệ thống vui lòng liên hệ admin !!!', HttpStatus.BAD_REQUEST);
+    }
   }
 }

@@ -5,7 +5,7 @@ export class ProductOfCategoryDto {
   @ApiProperty({ type: String, required: false })
   @IsString()
   @IsOptional()
-  id: string;
+  id?: string;
 
   @ApiProperty({ type: String, required: false })
   @IsString()
@@ -26,4 +26,9 @@ export class ProductOfCategoryDto {
   @IsString()
   @IsOptional()
   url: string;
+
+  @ApiProperty({ type: String, required: false })
+  @IsString()
+  @IsOptional()
+  productId?: string;
 }
