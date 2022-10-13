@@ -207,62 +207,47 @@ export class ShoppingService {
     if (maxPrice != null) {
       url += `&pt=${maxPrice}`;
     }
-
     const response = await this.requestService.getMethod<string>(encodeURI(url));
     const $ = Cheerio.load(response);
-    const listItems = $(`#searchResults${page} > div[data-result-type='items'] > ul > li`);
-    results.totalProduct = parseInt(
-      $(
-        '#shpWrapper > main > div.Column._3RZ4M6_sP6nw > div.Column__center._3MLJRzRderwL > div.WaEFXzO1gxUR._11KpetFzYHvU > div._2EvXo2XYUZfp > p',
-      )
-        .text()
-        .replace(',', '')
-        .replace(',', ''),
-    );
-    results.pageSize = 30;
-    results.product = [];
-
-    listItems.each(function () {
-      let price: number;
-      let slugProduct: string;
-      let slugShop: string;
-      const element = Cheerio.load(this);
-      const checkSale = element('div > div:nth-child(2) > div > p');
-
-      if (checkSale.length === 2) {
-        price = parseFloat(
-          element('div > div:nth-child(2) > div > p:nth-child(2) > span:first-child').text().replace(',', ''),
-        );
-      } else if (checkSale.length === 1) {
-        price = parseFloat(
-          element('div > div:nth-child(2) > div > p:first-child > span:first-child').text().replace(',', ''),
-        );
+    const dataRaw = $('#__NEXT_DATA__').text();
+    const data = JSON.parse(dataRaw);
+    let listItems: Array<any> = [];
+    console.log(data.props.initialState.bff.searchResults.items['1']);
+    const listItemRawData: Array<any> = data?.props?.initialState?.bff?.searchResults?.items['1'];
+    if (!listItemRawData) {
+      throw new HttpException('Lỗi hệ thống vui lòng liên hệ admin !!!', HttpStatus.BAD_REQUEST);
+    }
+    listItemRawData.forEach((item) => {
+      if (item.type == 'RESULT') {
+        listItems = listItems.concat(item?.content?.items);
       }
-
-      let image;
-      const name = element('div > div:nth-child(2) > p > a > span').text();
-      const url = element('div > div:first-child > a').attr('href');
-      image = element('div > div:first-child > a > img').attr('src');
-      if (!image) {
-        const contentNoneScript = element('div > div:first-child > a > span > noscript').text();
-        const content = Cheerio.load(contentNoneScript);
-        image = content('img').attr('src');
-      }
-
-      if (url.includes('https://store.shopping.yahoo.co.jp/')) {
-        const arr = url.split('/');
+    });
+    const totalProduct = data?.props?.initialState?.bff?.searchResultHeader?.hitCount;
+    const products = listItems.map((item) => {
+      let slugShop, slugProduct;
+      if (item.url.includes('https://store.shopping.yahoo.co.jp/')) {
+        const arr = item.url.split('/');
         slugShop = arr[3];
         slugProduct = arr[4].slice(0, arr[4].lastIndexOf('.html'));
       }
-      if (url.includes('https://paypaymall.yahoo.co.jp/')) {
-        slugShop = url.split('/')[4];
-        slugProduct = url.split('/')[6];
+      if (item.url.includes('https://paypaymall.yahoo.co.jp/')) {
+        slugShop = item.url.split('/')[4];
+        slugProduct = item.url.split('/')[6];
       }
-
-      results.product.push({ name, price, image, url, slugShop, slugProduct });
+      return {
+        name: item.name,
+        price: item.price,
+        url: item.url,
+        image: item.image.imageUrl,
+        slugShop,
+        slugProduct,
+      };
     });
-
-    return results;
+    return {
+      products,
+      totalProduct: totalProduct,
+      pageSize: products.length,
+    };
   }
 
   async orderProduct(token: string, orderProductShoppingDto: OrderProductShoppingDto) {
