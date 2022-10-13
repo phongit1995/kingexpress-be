@@ -93,7 +93,7 @@ export class MercariService {
       const element = Cheerio.load(this);
       const url = element('div > a').attr('href');
       const name = element('div > a > img').attr('alt');
-      const image = element('div > a > img').attr('src');
+      const image = element('div > a > img').data('image');
       const price = parseInt(
         element('div > div > div > div > div.price_converted.product_price_exchange').attr('data-price-jp'),
       );
