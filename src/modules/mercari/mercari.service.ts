@@ -109,6 +109,7 @@ export class MercariService {
     const url = `https://janbox.com/vi/mercari/item/${pid}`;
     const response = await this.requestService.getMethod<string>(encodeURI(url));
     const $ = Cheerio.load(response);
+    console.log(url);
 
     const name = $('#page_mercari > div.page_body > div > div.row.mb50 > div.col-5 > h1').text();
     const price = parseInt(
@@ -124,10 +125,8 @@ export class MercariService {
       .text()
       .trim();
     const images = [];
-    const listItemImages = $('#swiper-wrapper-8a6db1b62a13640e > div');
-    listItemImages.each(function () {
-      const element = Cheerio.load(this);
-      images.push(element('img').attr('src'));
+    $('.swiper-wrapper > .swiper-slide.gallery_item_thumb >img ').each(function (index, element) {
+      images.push($(element).attr('src'));
     });
     const url_mercari = $(
       '#page_mercari > div.page_body > div > div.row.mb50 > div.col-3 > div > div:nth-child(1) > div:nth-child(2) > strong > a',
@@ -184,6 +183,7 @@ export class MercariService {
     return {
       name,
       price,
+      images,
       information,
       detail,
       url: url_mercari,
@@ -219,7 +219,7 @@ export class MercariService {
       listProducts.push({ name, price, image, url, productId });
     });
 
-    return { results: listProducts, totalPage: parseInt(totalPage), pageSize: listProducts.length, page: search.page };
+    return { products: listProducts, totalPage: parseInt(totalPage), pageSize: listProducts.length, page: search.page };
   }
 
   async orderProduct(token: string, order: OrderProductMercariDto) {

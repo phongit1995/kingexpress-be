@@ -126,7 +126,7 @@ export class RakutenService {
       });
     });
     return {
-      results: products,
+      products: products,
       page: search.page,
       totalPage: parseInt(totalPage),
       pageSize,
