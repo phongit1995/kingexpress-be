@@ -111,7 +111,11 @@ export class RakutenService {
     const urlLast = $('#page_rakuten > div.container > div > div > nav > ul > li.page-item.page-item__last > a').attr(
       'href',
     );
-    const totalPage = Url.parse(urlLast, true).query.page as string;
+    let totalPage: string | number = 0;
+    try {
+      totalPage = Url.parse(urlLast, true).query.page as string;
+    } catch (error) {}
+
     $('#page_rakuten > div.container > div > div > div.row > div').each(function () {
       const element = Cheerio.load(this);
       const image = element('div > div.product_item__price > a').data('image');
@@ -128,7 +132,7 @@ export class RakutenService {
     return {
       products: products,
       page: search.page,
-      totalPage: parseInt(totalPage),
+      totalPage: parseInt(totalPage as string),
       pageSize,
     };
   }
